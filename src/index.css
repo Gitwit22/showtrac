@@ -66,3 +66,16 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+/* Responsive overrides for project grids */
+.project-header-grid,
+.project-create-grid {
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .project-header-grid,
+  .project-create-grid {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  }
+}

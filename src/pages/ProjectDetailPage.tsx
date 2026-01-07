@@ -198,6 +198,7 @@ function removeArtistAndItems(counterpartyId: string) {
         <ProjectHeader project={project} />
 
        <div
+  className="project-header-grid"
   style={{
     marginTop: spacing.md,
     display: "grid",

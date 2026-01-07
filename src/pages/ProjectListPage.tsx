@@ -17,7 +17,7 @@ export default function ProjectListPage() {
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
 
   // create form
-  const [name, setName] = useState<string>("New Project");
+  const [name, setName] = useState<string>("");
   const [dateISO, setDateISO] = useState<string>(todayISO());
   const [templateId, setTemplateId] = useState<TemplateId>("videoShoots");
   const [location, setLocation] = useState<string>("");
@@ -118,6 +118,7 @@ export default function ProjectListPage() {
           <div style={text.sectionLabel}>+ New Project</div>
 
           <div
+            className="project-create-grid"
             style={{
               display: "grid",
               gridTemplateColumns: "2fr 1fr 1fr 1fr",
@@ -125,31 +126,46 @@ export default function ProjectListPage() {
               marginBottom: spacing.lg,
             }}
           >
-            <Input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Project name"
-            />
-            <Input
-              value={dateISO}
-              onChange={(e) => setDateISO(e.target.value)}
-              type="date"
-            />
-            <Select
-              value={templateId}
-              onChange={(e) => setTemplateId(e.target.value as TemplateId)}
-            >
-              {templates.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.name}
-                </option>
-              ))}
-            </Select>
-            <Input
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              placeholder="Location (optional)"
-            />
+            <div>
+              <div style={text.fieldLabel}>Project Name</div>
+              <Input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Project name"
+              />
+            </div>
+
+            <div>
+              <div style={text.fieldLabel}>Date</div>
+              <Input
+                value={dateISO}
+                onChange={(e) => setDateISO(e.target.value)}
+                type="date"
+              />
+            </div>
+
+            <div>
+              <div style={text.fieldLabel}>Template</div>
+              <Select
+                value={templateId}
+                onChange={(e) => setTemplateId(e.target.value as TemplateId)}
+              >
+                {templates.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.name}
+                  </option>
+                ))}
+              </Select>
+            </div>
+
+            <div>
+              <div style={text.fieldLabel}>Location (optional)</div>
+              <Input
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                placeholder="Location (optional)"
+              />
+            </div>
           </div>
 
           <Button onClick={createProject}>Create & Open</Button>
