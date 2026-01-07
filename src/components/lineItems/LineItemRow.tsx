@@ -4,6 +4,7 @@ import Select from "../common/Select";
 import Input from "../common/Input";
 import Button from "../common/Button";
 import { toMoney } from "../../utils/money";
+import { spacing } from "../../styles";
 
 type Props = {
   counterparty: Counterparty;
@@ -18,8 +19,8 @@ export default function LineItemRow({ counterparty, lineItem, typeOptions, onCha
 
   return (
     <tr>
-      <td style={{ padding: 8 }}>{counterparty.name}</td>
-      <td style={{ padding: 8, width: 180 }}>
+      <td style={{ padding: spacing.md }}>{counterparty.name}</td>
+      <td style={{ padding: spacing.md, width: 180 }}>
         <Select
           value={lineItem.typeId}
 onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
@@ -33,14 +34,14 @@ onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
           ))}
         </Select>
       </td>
-      <td style={{ padding: 8, width: 140 }}>
+      <td style={{ padding: spacing.md, width: 140 }}>
         <Input
           inputMode="decimal"
           value={String(lineItem.amount)}
           onChange={(e) => onChange({ amount: toMoney(e.target.value) })}
         />
       </td>
-      <td style={{ padding: 8, width: 140 }}>
+      <td style={{ padding: spacing.md, width: 140 }}>
         <Select
           value={status}
           onChange={(e) => onChange({ status: e.target.value as PaymentStatus })}
@@ -50,7 +51,7 @@ onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
         </Select>
       </td>
 
-<td style={{ padding: 8, width: 140 }}>
+<td style={{ padding: spacing.md, width: 140 }}>
   <Select
     value={lineItem.splitBehavior ?? "split"}
     onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
@@ -63,14 +64,14 @@ onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
 </td>
 
 
-      <td style={{ padding: 8 }}>
+      <td style={{ padding: spacing.md }}>
         <Input
           placeholder="Notes (optional)"
           value={lineItem.description ?? ""}
           onChange={(e) => onChange({ description: e.target.value })}
         />
       </td>
-      <td style={{ padding: 8, width: 90 }}>
+      <td style={{ padding: spacing.md, width: 90 }}>
         <Button variant="danger" onClick={onDelete}>Delete</Button>
       </td>
     </tr>

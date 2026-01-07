@@ -1,20 +1,22 @@
-import React from "react";
+// src/components/common/Select.tsx
+import { select } from "../../styles";
 
-type Props = React.SelectHTMLAttributes<HTMLSelectElement>;
+type Props = React.SelectHTMLAttributes<HTMLSelectElement> & {
+  small?: boolean;
+};
 
-export default function Select(props: Props) {
+export default function Select({ 
+  small = false, 
+  style, 
+  ...props 
+}: Props) {
   return (
     <select
       {...props}
       style={{
-        padding: "8px 10px",
-        borderRadius: 10,
-        border: "1px solid rgba(255,255,255,0.15)",
-        background: "rgba(15,15,15,0.9)",
-        color: "white",
-        outline: "none",
-        width: props.style?.width ?? "100%",
-        ...props.style,
+        ...select.base,
+        ...(small ? select.small : {}),
+        ...style,
       }}
     />
   );

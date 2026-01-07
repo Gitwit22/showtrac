@@ -1,5 +1,6 @@
 import type { Counterparty, LineItem } from "../../domain/types";
 import LineItemRow from "./LineItemRow";
+import { colors, spacing, table } from "../../styles";
 
 type Props = {
   counterparties: Counterparty[];
@@ -20,15 +21,16 @@ export default function LineItemTable({
 
   return (
     <div style={{ overflowX: "auto" }}>
-      <table style={{ width: "100%", borderCollapse: "collapse" }}>
+      <table style={{ ...table.container, borderCollapse: "collapse" }}>
         <thead>
-          <tr style={{ textAlign: "left", borderBottom: "1px solid rgba(255,255,255,0.12)" }}>
-            <th style={{ padding: 8 }}>Artist</th>
-            <th style={{ padding: 8 }}>Type</th>
-            <th style={{ padding: 8 }}>Amount</th>
-            <th style={{ padding: 8 }}>Status</th>
-            <th style={{ padding: 8 }}>Notes</th>
-            <th style={{ padding: 8 }} />
+          <tr style={{ textAlign: "left", borderBottom: `1px solid ${colors.borderGray}` }}>
+            <th style={{ padding: spacing.md }}>Artist</th>
+            <th style={{ padding: spacing.md }}>Type</th>
+            <th style={{ padding: spacing.md }}>Amount</th>
+            <th style={{ padding: spacing.md }}>Status</th>
+            <th style={{ padding: spacing.md }}>Split</th>
+            <th style={{ padding: spacing.md }}>Notes</th>
+            <th style={{ padding: spacing.md }} />
           </tr>
         </thead>
         <tbody>

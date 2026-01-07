@@ -1,16 +1,19 @@
 import { useEffect, useMemo, useState } from "react";
 import type { AppState, Project, TemplateId } from "../domain/types";
 import { templates } from "../domain/templates/templateRegistry";
-import { loadState, saveState } from "../services/storage/storage";
+import { loadSnapshot, saveSnapshot } from "../services/persist";
 import { uid } from "../utils/ids";
 import { nowISO, todayISO } from "../utils/dates";
 import Button from "../components/common/Button";
 import Input from "../components/common/Input";
 import Select from "../components/common/Select";
 import ProjectDetailPage from "./ProjectDetailPage";
+import { colors, spacing, layout, card, header, text, misc } from "../styles";
 
 export default function ProjectListPage() {
-  const [state, setState] = useState<AppState>({ projects: [] });
+  // Initialize synchronously from snapshot to avoid empty overwrites
+  const [state, setState] = useState<AppState>(() => loadSnapshot() ?? { projects: [] });
+  const [hydrated, setHydrated] = useState(false);
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
 
   // create form
@@ -19,13 +22,29 @@ export default function ProjectListPage() {
   const [templateId, setTemplateId] = useState<TemplateId>("videoShoots");
   const [location, setLocation] = useState<string>("");
 
+  // Mark hydration complete after first mount
   useEffect(() => {
-    setState(loadState());
+    setHydrated(true);
   }, []);
 
+  // Persist with debounce once hydrated
   useEffect(() => {
-    saveState(state);
-  }, [state]);
+    if (!hydrated) return;
+    const handle = setTimeout(() => {
+      saveSnapshot(state);
+    }, 300);
+    return () => clearTimeout(handle);
+  }, [hydrated, state]);
+
+  // Final flush on pagehide
+  useEffect(() => {
+    if (!hydrated) return;
+    const onPageHide = () => {
+      try { saveSnapshot(state); } catch {}
+    };
+    window.addEventListener("pagehide", onPageHide);
+    return () => window.removeEventListener("pagehide", onPageHide);
+  }, [hydrated, state]);
 
   const activeProject = useMemo(
     () => state.projects.find(p => p.id === activeProjectId) ?? null,
@@ -69,8 +88,8 @@ export default function ProjectListPage() {
         project={activeProject}
         onBack={() => setActiveProjectId(null)}
         onUpdate={(updated) => {
-          setState(prev => ({
-            projects: prev.projects.map(p => (p.id === updated.id ? updated : p)),
+          setState((prev) => ({
+            projects: prev.projects.map((p) => (p.id === updated.id ? updated : p)),
           }));
         }}
       />
@@ -78,70 +97,174 @@ export default function ProjectListPage() {
   }
 
   return (
-    <div style={{ minHeight: "100vh", padding: 18, background: "#0b0b0b", color: "white" }}>
-      <div style={{ maxWidth: 1100, margin: "0 auto", display: "flex", flexDirection: "column", gap: 16 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 12 }}>
-          <div>
-            <div style={{ fontSize: 28, fontWeight: 900 }}>ShowTrac</div>
-            <div style={{ opacity: 0.8 }}>Projects you can use for video shoots, performance fees, or whatever.</div>
-          </div>
-        </div>
+    <div style={layout.page}>
+      {/* Grid texture background */}
+      <div style={layout.gridTexture} />
 
-        <div style={{ border: "1px solid rgba(255,255,255,0.12)", borderRadius: 14, padding: 14 }}>
-          <div style={{ fontWeight: 800, marginBottom: 10 }}>Create Project</div>
-          <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: 10 }}>
-            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Project name" />
-            <Input value={dateISO} onChange={(e) => setDateISO(e.target.value)} type="date" />
-            <Select value={templateId} onChange={(e) => setTemplateId(e.target.value as TemplateId)}>
-              {templates.map(t => (
-                <option key={t.id} value={t.id}>{t.name}</option>
+      <div style={layout.container}>
+        {/* Header */}
+        <header style={{ marginBottom: spacing.xxl }}>
+          <div style={{ display: "flex", alignItems: "center", gap: spacing.md, marginBottom: spacing.xs }}>
+            <div style={header.accentBar} />
+            <h1 style={header.title}>ShowTrac</h1>
+          </div>
+          <p style={header.subtitle}>
+            Track payments for video shoots, performances, and sessions
+          </p>
+        </header>
+
+        {/* Create Project Card */}
+        <div style={{ ...card.base, marginBottom: spacing.xl }}>
+          <div style={text.sectionLabel}>+ New Project</div>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "2fr 1fr 1fr 1fr",
+              gap: spacing.md,
+              marginBottom: spacing.lg,
+            }}
+          >
+            <Input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Project name"
+            />
+            <Input
+              value={dateISO}
+              onChange={(e) => setDateISO(e.target.value)}
+              type="date"
+            />
+            <Select
+              value={templateId}
+              onChange={(e) => setTemplateId(e.target.value as TemplateId)}
+            >
+              {templates.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.name}
+                </option>
               ))}
             </Select>
-            <Input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Location (optional)" />
+            <Input
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              placeholder="Location (optional)"
+            />
           </div>
-          <div style={{ marginTop: 10 }}>
-            <Button onClick={createProject}>Create & Open</Button>
-          </div>
+
+          <Button onClick={createProject}>Create & Open</Button>
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          <div style={{ fontWeight: 900 }}>Your Projects</div>
+        {/* Projects List */}
+        <div style={{ marginBottom: spacing.lg }}>
+          <div style={text.sectionLabelMuted}>Your Projects</div>
 
           {state.projects.length === 0 ? (
-            <div style={{ opacity: 0.8 }}>No projects yet. Create one above.</div>
+            <div style={text.muted}>No projects yet. Create one above.</div>
           ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              {state.projects.map(p => (
-                <div
+            <div style={{ display: "flex", flexDirection: "column", gap: spacing.md }}>
+              {state.projects.map((p) => (
+                <ProjectCard
                   key={p.id}
-                  style={{
-                    border: "1px solid rgba(255,255,255,0.12)",
-                    borderRadius: 14,
-                    padding: 14,
-                    display: "flex",
-                    justifyContent: "space-between",
-                    gap: 12,
-                    alignItems: "center",
-                  }}
-                >
-                  <div>
-                    <div style={{ fontWeight: 900, fontSize: 16 }}>{p.name}</div>
-                    <div style={{ opacity: 0.75, fontSize: 13 }}>
-                      {p.templateId} • {p.dateISO}{p.location ? ` • ${p.location}` : ""} • {p.lineItems.length} line items
-                    </div>
-                  </div>
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <Button variant="ghost" onClick={() => setActiveProjectId(p.id)}>Open</Button>
-                    <Button variant="danger" onClick={() => deleteProject(p.id)}>Delete</Button>
-                  </div>
-                </div>
+                  project={p}
+                  onOpen={() => setActiveProjectId(p.id)}
+                  onDelete={() => deleteProject(p.id)}
+                />
               ))}
             </div>
           )}
         </div>
 
-        <div style={{ opacity: 0.6, fontSize: 12, marginTop: 10 }}>
-          Data is stored locally in your browser (localStorage). Exports create files you can save/share.
+        {/* Footer */}
+        <div style={misc.footerNote}>
+          Data stored locally in your browser • Export to MD or CSV anytime
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============================================
+// PROJECT CARD SUB-COMPONENT
+// ============================================
+
+type ProjectCardProps = {
+  project: Project;
+  onOpen: () => void;
+  onDelete: () => void;
+};
+
+function ProjectCard({ project, onOpen, onDelete }: ProjectCardProps) {
+  const [hovered, setHovered] = useState(false);
+
+  const unpaidCount = project.lineItems.filter((li) => li.status !== "paid").length;
+
+  return (
+    <div
+      onClick={onOpen}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        ...card.accent,
+        ...(hovered ? card.accentHover : {}),
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          gap: spacing.lg,
+        }}
+      >
+        <div>
+          <div
+            style={{
+              fontWeight: 700,
+              fontSize: 16,
+              marginBottom: 4,
+            }}
+          >
+            {project.name}
+          </div>
+          <div
+            style={{
+              color: colors.textMuted,
+              fontSize: 13,
+              display: "flex",
+              gap: spacing.md,
+            }}
+          >
+            <span>{project.dateISO}</span>
+            <span style={misc.dot}>•</span>
+            <span>{project.templateId}</span>
+            {project.location && (
+              <>
+                <span style={misc.dot}>•</span>
+                <span>{project.location}</span>
+              </>
+            )}
+            <span style={misc.dot}>•</span>
+            <span>{project.lineItems.length} items</span>
+            {unpaidCount > 0 && (
+              <>
+                <span style={misc.dot}>•</span>
+                <span style={text.yellow}>{unpaidCount} unpaid</span>
+              </>
+            )}
+          </div>
+        </div>
+
+        <div
+          style={{ display: "flex", gap: spacing.sm }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <Button variant="ghost" small onClick={onOpen}>
+            Open
+          </Button>
+          <Button variant="danger" small onClick={onDelete}>
+            Delete
+          </Button>
         </div>
       </div>
     </div>

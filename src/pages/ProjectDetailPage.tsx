@@ -15,6 +15,8 @@ import { buildCsvRows, buildMarkdown } from "../domain/engine/eports";
 import { downloadCsv } from "../services/export/exportCsv";
 import { downloadMarkdown } from "../services/export/exportMarkdown";
 import ArtistsTab from "../components/projects/ArtistTab";
+import { layout, card, spacing, text, header, colors, radii, fontSizes, fontWeights } from "../styles";
+
 
 
 type Props = {
@@ -162,30 +164,50 @@ function removeArtistAndItems(counterpartyId: string) {
 }
 
   return (
-  <div style={{ minHeight: "100vh", padding: 18, background: "#0b0b0b", color: "white" }}>
-    <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", flexDirection: "column", gap: 16 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
+  <div style={layout.page}>
+    <div style={layout.gridTexture} />
+    <div style={{ ...layout.containerWide }}>
+      {/* Left-side background image overlay */}
+      <div
+        style={{
+          position: "absolute",
+          left: spacing.lg,
+          top: spacing.xl,
+          width: 420,
+          height: 520,
+          backgroundImage: "url('/background.jpg')",
+          backgroundRepeat: "no-repeat",
+          backgroundSize: "contain",
+          opacity: 0.08,
+          pointerEvents: "none",
+          zIndex: 0,
+        }}
+      />
+
+      {/* Content wrapper above background image */}
+      <div style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", gap: spacing.lg }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: spacing.md }}>
         <Button variant="ghost" onClick={onBack}>← Back</Button>
-        <div style={{ display: "flex", gap: 8 }}>
+        <div style={{ display: "flex", gap: spacing.sm }}>
           <Button onClick={exportMarkdown}>Export Markdown</Button>
           <Button onClick={exportCsv}>Export CSV</Button>
         </div>
       </div>
 
-      <div style={{ border: "1px solid rgba(255,255,255,0.12)", borderRadius: 14, padding: 14 }}>
+      <div style={card.base}>
         <ProjectHeader project={project} />
 
        <div
   style={{
-    marginTop: 12,
+    marginTop: spacing.md,
     display: "grid",
     gridTemplateColumns: "2fr 1fr 1fr 1.5fr",
-    gap: 10,
+    gap: spacing.lg,
   }}
 >
   {/* Project Name */}
   <div>
-    <div style={{ opacity: 0.8, fontSize: 12 }}>{t.labels.projectName}</div>
+    <div style={text.fieldLabel}>{t.labels.projectName}</div>
     <Input
       value={project.name}
       onChange={(e: any) => patchProject({ name: e.target.value })}
@@ -194,7 +216,7 @@ function removeArtistAndItems(counterpartyId: string) {
 
   {/* Date */}
   <div>
-    <div style={{ opacity: 0.8, fontSize: 12 }}>{t.labels.projectDate}</div>
+    <div style={text.fieldLabel}>{t.labels.projectDate}</div>
     <Input
       type="date"
       value={project.dateISO}
@@ -204,7 +226,7 @@ function removeArtistAndItems(counterpartyId: string) {
 
   {/* Location */}
   <div>
-    <div style={{ opacity: 0.8, fontSize: 12 }}>{t.labels.projectLocation}</div>
+    <div style={text.fieldLabel}>{t.labels.projectLocation}</div>
     <Input
       value={project.location ?? ""}
       onChange={(e: any) => patchProject({ location: e.target.value })}
@@ -213,7 +235,7 @@ function removeArtistAndItems(counterpartyId: string) {
 
   {/* Venue */}
   <div>
-    <div style={{ opacity: 0.8, fontSize: 12 }}>Venue</div>
+    <div style={text.fieldLabel}>Venue</div>
     <Input
       placeholder="Venue name"
       value={project.venueName ?? ""}
@@ -232,9 +254,9 @@ function removeArtistAndItems(counterpartyId: string) {
 </div>
 
 
-            <div style={{ height: 8 }} />
+            <div style={{ height: spacing.lg }} />
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 120px", gap: 8, alignItems: "center" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 96px", gap: spacing.md, alignItems: "center" }}>
               <Input
                 value={project.split.ownerName}
                 onChange={(e) => patchProject({ split: { ...project.split, ownerName: e.target.value } })}
@@ -246,34 +268,47 @@ function removeArtistAndItems(counterpartyId: string) {
               />
             </div>
 
-            <div style={{ marginTop: 10, opacity: 0.85 }}>
-              Total: ${totals.total.toFixed(2)} • Paid: ${totals.paid.toFixed(2)} • Outstanding: ${totals.unpaid.toFixed(2)}
-            </div>
-            <div style={{ marginTop: 6, opacity: 0.85 }}>
-              {project.split.yourName}: ${totals.split.your.toFixed(2)} • {project.split.ownerName}: ${totals.split.owner.toFixed(2)}
+            <div
+              style={{
+                marginTop: spacing.md,
+                border: `1px solid ${colors.yellowBorder}`,
+                background: colors.yellowMuted,
+                borderRadius: radii.md,
+                padding: spacing.md,
+              }}
+            >
+              <div style={{ fontSize: fontSizes.lg, fontWeight: fontWeights.semibold }}>
+                Total: ${totals.total.toFixed(2)} • Paid: ${totals.paid.toFixed(2)} • Outstanding: ${totals.unpaid.toFixed(2)}
+              </div>
+              <div style={{ marginTop: spacing.xs, opacity: 0.95 }}>
+                {project.split.yourName}: ${totals.split.your.toFixed(2)} • {project.split.ownerName}: ${totals.split.owner.toFixed(2)}
+              </div>
             </div>
           </div>
 
-          <div style={{ border: "1px solid rgba(255,255,255,0.10)", borderRadius: 14, padding: 12 }}>
-            <div style={{ fontWeight: 900, marginBottom: 8 }}>Add {t.labels.counterpartySingular}</div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 140px", gap: 8 }}>
+          <div style={card.base}>
+            <div style={text.sectionLabel}>+ Add {t.labels.counterpartySingular}</div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 140px", gap: spacing.sm }}>
               <Input placeholder="Name" value={newName} onChange={(e) => setNewName(e.target.value)} />
               <Input placeholder="Email (optional)" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} />
               <Button onClick={addCounterparty}>Add</Button>
             </div>
 
-            <div style={{ marginTop: 10, opacity: 0.8, fontSize: 12 }}>
+            <div style={{ marginTop: spacing.sm, opacity: 0.8, fontSize: 12 }}>
               Tip: You can add multiple line items per artist (deposit + fee + clip pack, etc.)
             </div>
           </div>
 
       
 
-<div style={{ border: "1px solid rgba(255,255,255,0.12)", borderRadius: 14, padding: 14 }}>
-  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
-    <div style={{ fontWeight: 900, fontSize: 16 }}>Manage</div>
+<div style={card.base}>
+  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: spacing.md }}>
+    <div style={{ display: "flex", alignItems: "center", gap: spacing.sm }}>
+      <div style={header.accentBarSmall} />
+      <div style={header.titleMd}>Manage</div>
+    </div>
 
-    <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+    <div style={{ display: "flex", gap: spacing.sm, alignItems: "center" }}>
       <Button
         variant={activeTab === "lineItems" ? "primary" : "ghost"}
         onClick={() => setActiveTab("lineItems")}
@@ -291,9 +326,9 @@ function removeArtistAndItems(counterpartyId: string) {
   </div>
 
   {activeTab === "lineItems" ? (
-    <div style={{ marginTop: 12 }}>
+    <div style={{ marginTop: spacing.md }}>
       {/* Quick controls */}
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: spacing.md, alignItems: "center" }}>
         <div style={{ minWidth: 240 }}>
           <Input
             placeholder="Search artist/venue..."
@@ -342,9 +377,9 @@ function removeArtistAndItems(counterpartyId: string) {
       </div>
 
       {/* Table */}
-      <div style={{ marginTop: 12 }}>
+      <div style={{ marginTop: spacing.md }}>
         {project.lineItems.length === 0 ? (
-          <div style={{ opacity: 0.8 }}>No line items yet. Add one above.</div>
+          <div style={text.muted}>No line items yet. Add one above.</div>
         ) : (
           <LineItemTable
             counterparties={project.counterparties}
@@ -357,7 +392,7 @@ function removeArtistAndItems(counterpartyId: string) {
       </div>
     </div>
   ) : (
-    <div style={{ marginTop: 12 }}>
+    <div style={{ marginTop: spacing.md }}>
       <ArtistsTab
         project={project}
         query={artistQuery}
@@ -372,6 +407,7 @@ function removeArtistAndItems(counterpartyId: string) {
   )}
 </div>
     </div>
+  </div>
   </div>
   );
 }

@@ -2,6 +2,7 @@ import type { Project, Counterparty, LineItem } from "../../domain/types";
 import Input from "../common/Input";
 import Select from "../common/Select";
 import Button from "../common/Button";
+import { colors, spacing, text, table } from "../../styles";
 
 type Filter = "all" | "hasUnpaid" | "hasItems" | "noItems";
 
@@ -72,8 +73,8 @@ export default function ArtistsTab({
   }
 
   return (
-    <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 12 }}>
-      <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 10 }}>
+    <div style={{ marginTop: spacing.md, display: "flex", flexDirection: "column", gap: spacing.lg }}>
+      <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: spacing.md }}>
         <Input
           placeholder="Search artists (name/email)"
           value={query}
@@ -88,26 +89,26 @@ export default function ArtistsTab({
       </div>
 
       <div style={{ overflowX: "auto" }}>
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+        <table style={{ ...table.container, borderCollapse: "collapse" }}>
           <thead>
-            <tr style={{ textAlign: "left", borderBottom: "1px solid rgba(255,255,255,0.12)" }}>
-              <th style={{ padding: 8 }}>Name</th>
-              <th style={{ padding: 8 }}>Email</th>
-              <th style={{ padding: 8 }}>Items</th>
-              <th style={{ padding: 8 }}>Unpaid</th>
-              <th style={{ padding: 8 }} />
+            <tr style={{ textAlign: "left", borderBottom: `1px solid ${colors.borderGray}` }}>
+              <th style={{ padding: spacing.md }}>Name</th>
+              <th style={{ padding: spacing.md }}>Email</th>
+              <th style={{ padding: spacing.md }}>Items</th>
+              <th style={{ padding: spacing.md }}>Unpaid</th>
+              <th style={{ padding: spacing.md }} />
             </tr>
           </thead>
           <tbody>
             {rows.map(({ cp, itemsCount, unpaid }) => (
               <tr key={cp.id}>
-                <td style={{ padding: 8, width: 240 }}>
+                <td style={{ padding: spacing.md, width: 240 }}>
                   <Input
                     value={cp.name}
                     onChange={(e) => patchCounterparty(cp.id, { name: e.target.value })}
                   />
                 </td>
-                <td style={{ padding: 8, width: 280 }}>
+                <td style={{ padding: spacing.md, width: 280 }}>
                   <Input
                     placeholder="Email (optional)"
                     value={cp.email ?? ""}
@@ -116,10 +117,10 @@ export default function ArtistsTab({
                     }
                   />
                 </td>
-                <td style={{ padding: 8, width: 90 }}>{itemsCount}</td>
-                <td style={{ padding: 8, width: 120 }}>{money(unpaid)}</td>
-                <td style={{ padding: 8, width: 260 }}>
-                  <div style={{ display: "flex", gap: 8 }}>
+                <td style={{ padding: spacing.md, width: 90 }}>{itemsCount}</td>
+                <td style={{ padding: spacing.md, width: 120 }}>{money(unpaid)}</td>
+                <td style={{ padding: spacing.md, width: 260 }}>
+                  <div style={{ display: "flex", gap: spacing.md }}>
                     <Button variant="ghost" onClick={() => onAddLineItem(cp.id)}>
                       Add item
                     </Button>
@@ -133,7 +134,7 @@ export default function ArtistsTab({
 
             {rows.length === 0 ? (
               <tr>
-                <td style={{ padding: 8, opacity: 0.8 }} colSpan={5}>
+                <td style={{ padding: spacing.md, ...text.muted }} colSpan={5}>
                   No artists match your filters.
                 </td>
               </tr>

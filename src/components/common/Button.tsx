@@ -1,23 +1,32 @@
-import React from "react";
+// src/components/common/Button.tsx
+import { button } from "../../styles";
 
 type Props = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: "primary" | "ghost" | "danger";
+  small?: boolean;
 };
 
-export default function Button({ variant = "primary", style, ...props }: Props) {
-  const base: React.CSSProperties = {
-    padding: "8px 12px",
-    borderRadius: 10,
-    border: "1px solid rgba(255,255,255,0.15)",
-    cursor: "pointer",
-    fontWeight: 600,
+export default function Button({ 
+  variant = "primary", 
+  small = false,
+  style, 
+  ...props 
+}: Props) {
+  const variantStyles = {
+    primary: button.primary,
+    ghost: button.ghost,
+    danger: button.danger,
   };
 
-  const variants: Record<string, React.CSSProperties> = {
-    primary: { background: "rgba(255,255,255,0.12)", color: "white" },
-    ghost: { background: "transparent", color: "white" },
-    danger: { background: "rgba(255,0,0,0.15)", color: "white" },
-  };
-
-  return <button {...props} style={{ ...base, ...variants[variant], ...style }} />;
+  return (
+    <button
+      {...props}
+      style={{
+        ...button.base,
+        ...(small ? button.small : {}),
+        ...variantStyles[variant],
+        ...style,
+      }}
+    />
+  );
 }
